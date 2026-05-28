@@ -54,14 +54,16 @@ var targetPositions = [{
 	}
 ];
 
-var targetImages = {
+var targetConfigs = {
 	greyWolf: {
 		normal: 'image/actor-1.png',
 		hit: 'image/actor-1-hit.png',
 		className: 'target-grey-wolf',
 		offsetLeft: -0.45,
 		offsetTop: -1.8,
-		spawnWeight: 7
+		spawnWeight: 7,
+		scoreDelta: 10,
+		hitAudio: 'hit-right'
 	},
 	littleGrey: {
 		normal: 'image/actor-2.png',
@@ -69,7 +71,9 @@ var targetImages = {
 		className: 'target-little-grey',
 		offsetLeft: -0.45,
 		offsetTop: -1.8,
-		spawnWeight: 3
+		spawnWeight: 3,
+		scoreDelta: -10,
+		hitAudio: 'hit-wrong'
 	}
 };
 
@@ -82,14 +86,14 @@ function getOffsetPosition(positionValue, offsetRem) {
 }
 
 function getRandomTargetType() {
-	var targetTypes = Object.keys(targetImages);
+	var targetTypes = Object.keys(targetConfigs);
 	var totalWeight = targetTypes.reduce(function(total, targetType) {
-		return total + targetImages[targetType].spawnWeight;
+		return total + targetConfigs[targetType].spawnWeight;
 	}, 0);
 	var randomWeight = Math.random() * totalWeight;
 
 	for (var index = 0; index < targetTypes.length; index++) {
-		randomWeight -= targetImages[targetTypes[index]].spawnWeight;
+		randomWeight -= targetConfigs[targetTypes[index]].spawnWeight;
 
 		if (randomWeight <= 0) {
 			return targetTypes[index];
@@ -359,7 +363,7 @@ function spawnTarget() {
 	var targetImage = document.createElement('img');
 	var positionIndex = getRandomInteger(0, targetPositions.length - 1);
 	var targetType = getRandomTargetType();
-	var targetConfig = targetImages[targetType];
+	var targetConfig = targetConfigs[targetType];
 	var clickCount = 0;
 
 	targetHole.className = 'target-hole';
@@ -385,16 +389,9 @@ function spawnTarget() {
 
 		targetImage.src = targetConfig.hit;
 		targetImage.classList.add('is-hit');
-
-		if (targetType === 'greyWolf') {
-			showScoreFeedback(targetHole, 10);
-			setScore(score + 10);
-			playEffectAudio('hit-right');
-		} else {
-			showScoreFeedback(targetHole, -10);
-			setScore(score - 10);
-			playEffectAudio('hit-wrong');
-		}
+		showScoreFeedback(targetHole, targetConfig.scoreDelta);
+		setScore(score + targetConfig.scoreDelta);
+		playEffectAudio(targetConfig.hitAudio);
 	};
 
 	setTimeout(function() {
