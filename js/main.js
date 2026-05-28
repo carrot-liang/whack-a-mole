@@ -12,8 +12,8 @@ var gameDurationSeconds = 30;
 var score = 0;
 var spawnTimer = null;
 var effectAudioIndex = 0;
-var spawnIntervalMs = getRandomInteger(500, 800);
-var targetStayMs = getRandomInteger(150, 250);
+var spawnIntervalMs = getRandomInteger(800, 1100);
+var targetStayMs = getRandomInteger(700, 950);
 var rankingStorageKey = 'whackAMoleRankings';
 
 var targetPositions = [{
@@ -54,17 +54,47 @@ var targetPositions = [{
 	}
 ];
 
-var targetFramePrefixes = {
-	greyWolf: 'grey-wolf',
-	littleGrey: 'little-grey'
+var targetImages = {
+	greyWolf: {
+		normal: 'image/actor-1.png',
+		hit: 'image/actor-1-hit.png',
+		className: 'target-grey-wolf',
+		offsetLeft: -0.45,
+		offsetTop: -1.8,
+		spawnWeight: 7
+	},
+	littleGrey: {
+		normal: 'image/actor-2.png',
+		hit: 'image/actor-2-hit.png',
+		className: 'target-little-grey',
+		offsetLeft: -0.45,
+		offsetTop: -1.8,
+		spawnWeight: 3
+	}
 };
 
 function getRandomInteger(min, max) {
 	return Math.round(Math.random() * (max - min) + min);
 }
 
-function getTargetFramePath(targetType, frameIndex) {
-	return 'image/' + targetFramePrefixes[targetType] + '-' + frameIndex + '.png';
+function getOffsetPosition(positionValue, offsetRem) {
+	return 'calc(' + positionValue + ' + ' + offsetRem + 'rem)';
+}
+
+function getRandomTargetType() {
+	var targetTypes = Object.keys(targetImages);
+	var totalWeight = targetTypes.reduce(function(total, targetType) {
+		return total + targetImages[targetType].spawnWeight;
+	}, 0);
+	var randomWeight = Math.random() * totalWeight;
+
+	for (var index = 0; index < targetTypes.length; index++) {
+		randomWeight -= targetImages[targetTypes[index]].spawnWeight;
+
+		if (randomWeight <= 0) {
+			return targetTypes[index];
+		}
+	}
 }
 
 function setScore(nextScore) {
@@ -105,6 +135,7 @@ function saveRankingRecords(records) {
 function clearRankingRecords() {
 	localStorage.removeItem(rankingStorageKey);
 	renderRankingTable();
+	renderGameResult(null);
 }
 
 function sortRankingRecords(records) {
@@ -121,6 +152,7 @@ function renderRankingTable() {
 	var records = sortRankingRecords(getRankingRecords());
 	var rankingRowsHtml = '';
 
+	renderParticipantCount(records);
 	renderCurrentRank(records);
 	renderTopRankingList(records);
 
@@ -132,13 +164,17 @@ function renderRankingTable() {
 	records.forEach(function(record, index) {
 		rankingRowsHtml += '<tr>' +
 			'<td><span class="ranking-index">' + (index + 1) + '</span></td>' +
-			'<td class="ranking-player-id">' + record.playerId + '</td>' +
+			'<td class="ranking-player-id">#' + record.playerId + '</td>' +
 			'<td class="ranking-score">' + record.score + '</td>' +
 			'<td class="ranking-time">' + formatRankingTime(record.time) + '</td>' +
 			'</tr>';
 	});
 
 	$("#ranking-table-body").html(rankingRowsHtml);
+}
+
+function renderParticipantCount(records) {
+	$("#participant-count").text(records.length);
 }
 
 function formatRankingTime(timeText) {
@@ -153,13 +189,9 @@ function formatRankingTime(timeText) {
 
 function renderCurrentRank(records) {
 	var sortedRecords = records || sortRankingRecords(getRankingRecords());
-	var rank = '--';
-
-	if (sortedRecords.length > 0) {
-		rank = (sortedRecords.filter(function(record) {
-			return record.score > score;
-		}).length + 1);
-	}
+	var rank = sortedRecords.filter(function(record) {
+		return record.score > score;
+	}).length + 1;
 
 	$(".rank-num").text(rank);
 }
@@ -168,14 +200,19 @@ function renderTopRankingList(records) {
 	var topRankingHtml = '';
 	var topRecords = records.slice(0, 3);
 
-	if (topRecords.length === 0) {
-		$("#top-ranking-list").html('<li>暂无记录</li>');
-		return;
-	}
+	for (var index = 0; index < 3; index++) {
+		var rank = index + 1;
+		var record = topRecords[index];
+		var rankingDetailHtml = record ?
+			'<span class="top-ranking-player">#' + record.playerId + '</span>' +
+			'<span class="top-ranking-score">' + record.score + ' 分</span>' :
+			'<span class="top-ranking-empty">暂无记录</span>';
 
-	topRecords.forEach(function(record) {
-		topRankingHtml += '<li>' + record.playerId + '：' + record.score + ' 分</li>';
-	});
+		topRankingHtml += '<li>' +
+			'<img class="top-ranking-trophy" src="image/trophy-' + rank + '.png" alt="第' + rank + '名">' +
+			rankingDetailHtml +
+			'</li>';
+	}
 
 	$("#top-ranking-list").html(topRankingHtml);
 }
@@ -193,28 +230,57 @@ function createRankingRecord(finalScore) {
 
 function addRankingRecord(finalScore) {
 	var records = getRankingRecords();
+	var rankingRecord = createRankingRecord(finalScore);
+	var rankingIndex = 0;
 
-	records.push(createRankingRecord(finalScore));
+	records.push(rankingRecord);
 	records = sortRankingRecords(records);
+	rankingIndex = records.indexOf(rankingRecord);
 	saveRankingRecords(records);
 	renderRankingTable();
+
+	return {
+		record: rankingRecord,
+		rank: rankingIndex + 1
+	};
+}
+
+function renderGameResult(result) {
+	if (!result) {
+		$(".game-result-panel").hide();
+		$("#game-result-content").empty();
+		return;
+	}
+
+	$("#game-result-content").html('<strong>#' + result.record.playerId +
+		'</strong>，得分 <strong>' + result.record.score +
+		'</strong>，排名 <strong>' + result.rank +
+		'</strong><br>' + result.record.time);
+	$(".game-result-panel").show();
 }
 
 function finishGame() {
 	var finalScore = score;
+	var result = addRankingRecord(finalScore);
 
-	addRankingRecord(finalScore);
-	$(".target-image").remove();
+	$(".target-hole").remove();
 	$(".time-num").text(gameDurationSeconds);
+	$(".game-header").hide();
 	$(".start-box").show();
+	renderGameResult(result);
+
+	if (result.rank <= 3) {
+		playEffectAudio('top-rank');
+	} else {
+		playEffectAudio('game-over');
+	}
 }
 
 function playEffectAudio(audioName) {
 	effectAudioIndex++;
 
 	var audioHtml = '<audio class="effect-audio" id="effect-audio-' + effectAudioIndex +
-		'" preload="auto"><source src="audio/' + audioName + '.ogg" type="audio/ogg"><source src="audio/' + audioName +
-		'.mp3" type="audio/mpeg"></audio>';
+		'" preload="auto"><source src="audio/' + audioName + '.ogg" type="audio/ogg"></audio>';
 
 	$("body").append(audioHtml);
 	$('#effect-audio-' + effectAudioIndex)[0].play();
@@ -228,14 +294,8 @@ function playEffectAudio(audioName) {
 
 function startCountdown(secondsRemaining) {
 	var countdownTimer = window.setInterval(function() {
-		var second = 0;
-		var formattedSecond;
-
-		if (secondsRemaining > 0) {
-			second = Math.floor(secondsRemaining);
-		}
-
-		formattedSecond = second <= 9 ? '0' + second : second;
+		var second = Math.max(Math.floor(secondsRemaining), 0);
+		var formattedSecond = second <= 9 ? '0' + second : second;
 
 		$(".time-num").text(formattedSecond);
 		secondsRemaining--;
@@ -267,6 +327,8 @@ function toggleBackgroundMusic() {
 function startGame() {
 	$("#game-bg-audio")[0].play();
 	$("#music-button").addClass("is-music-on");
+	playEffectAudio('game-start');
+	$(".game-header").show();
 	$(".start-box").hide();
 
 	setScore(0);
@@ -280,70 +342,68 @@ function startSpawnLoop() {
 	}, spawnIntervalMs);
 }
 
+function showScoreFeedback(targetHole, scoreDelta) {
+	var scoreFeedback = document.createElement('span');
+
+	scoreFeedback.className = 'score-feedback ' + (scoreDelta > 0 ? 'is-positive' : 'is-negative');
+	scoreFeedback.textContent = (scoreDelta > 0 ? '+' : '') + scoreDelta;
+	targetHole.appendChild(scoreFeedback);
+
+	setTimeout(function() {
+		scoreFeedback.remove();
+	}, 650);
+}
+
 function spawnTarget() {
+	var targetHole = document.createElement('div');
 	var targetImage = document.createElement('img');
 	var positionIndex = getRandomInteger(0, targetPositions.length - 1);
-	var targetType = getRandomInteger(0, 1) === 1 ? 'greyWolf' : 'littleGrey';
-	var frameIndex = 0;
+	var targetType = getRandomTargetType();
+	var targetConfig = targetImages[targetType];
 	var clickCount = 0;
 
-	targetImage.className = 'target-image';
-	targetImage.src = getTargetFramePath(targetType, frameIndex);
-	frameIndex++;
-	$(".game-box-bg").append(targetImage);
+	targetHole.className = 'target-hole';
+	targetImage.className = 'target-image ' + targetConfig.className + ' is-appearing';
+	targetImage.src = targetConfig.normal;
+	targetImage.alt = targetType;
+	targetHole.appendChild(targetImage);
+	$(".game-box-bg").append(targetHole);
 
-	targetImage.style.left = targetPositions[positionIndex].left;
-	targetImage.style.top = targetPositions[positionIndex].top;
+	targetHole.style.left = getOffsetPosition(targetPositions[positionIndex].left, targetConfig.offsetLeft);
+	targetHole.style.top = getOffsetPosition(targetPositions[positionIndex].top, targetConfig.offsetTop);
 
-	targetImage.onclick = function() {
+	setTimeout(function() {
+		targetImage.classList.remove('is-appearing');
+	}, 220);
+
+	targetHole.onclick = function() {
 		clickCount++;
 
 		if (clickCount > 1) {
 			return false;
 		}
 
-		frameIndex = 5;
-
-		for (var i = 0; i < 4; i++) {
-			frameIndex++;
-			targetImage.src = getTargetFramePath(targetType, frameIndex);
-
-			if (frameIndex > 9) {
-				frameIndex--;
-			}
-		}
+		targetImage.src = targetConfig.hit;
+		targetImage.classList.add('is-hit');
 
 		if (targetType === 'greyWolf') {
+			showScoreFeedback(targetHole, 10);
 			setScore(score + 10);
-			playEffectAudio('second-music');
+			playEffectAudio('hit-right');
 		} else {
+			showScoreFeedback(targetHole, -10);
 			setScore(score - 10);
-			playEffectAudio('no-hit');
+			playEffectAudio('hit-wrong');
 		}
 	};
 
-	var appearTimer = setInterval(function() {
-		targetImage.src = getTargetFramePath(targetType, frameIndex);
-		frameIndex++;
+	setTimeout(function() {
+		targetImage.classList.add('is-hiding');
 
-		if (frameIndex > 5) {
-			clearInterval(appearTimer);
-
-			setTimeout(function() {
-				frameIndex = 5;
-
-				var disappearTimer = setInterval(function() {
-					targetImage.src = getTargetFramePath(targetType, frameIndex);
-					frameIndex--;
-
-					if (frameIndex < 0) {
-						clearInterval(disappearTimer);
-						targetImage.remove();
-					}
-				}, 50);
-			}, targetStayMs);
-		}
-	}, 50);
+		setTimeout(function() {
+			targetHole.remove();
+		}, 260);
+	}, targetStayMs);
 }
 
 $("#music-button").on("click", toggleBackgroundMusic);

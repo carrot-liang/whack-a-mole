@@ -6,7 +6,7 @@
 
 这是一个移动端优先的 H5 打地鼠类小游戏。玩家在 30 秒内点击随机出现的角色：打中灰太狼加分，打中小灰灰扣分。项目使用静态 HTML、CSS、JavaScript、jQuery 和 Bootstrap 实现，不依赖构建工具。
 
-![游戏界面截图](assets/screenshot.png)
+![游戏界面截图](screenshot.png)
 
 ## 功能特性
 
@@ -36,7 +36,7 @@
 │   └── bootstrap.min.js    # Bootstrap 脚本
 ├── image/                  # 项目运行所需图片
 ├── audio/                  # 背景音乐和点击音效
-└── assets/                 # 文档截图、备用图片和原始切图素材
+└── screenshot.png          # README 界面截图
 ```
 
 ## 运行方式
@@ -59,8 +59,8 @@ http://localhost:8000
 
 1. 页面加载后，`js/main.js` 根据屏幕宽度设置根字号，实现移动端适配。
 2. 点击“开始游戏”后，隐藏开始面板，播放背景音乐，启动倒计时和出狼循环。
-3. 出狼循环会创建一个 `img` 元素，随机选择 9 个洞位之一，并随机决定生成灰太狼或小灰灰。
-4. 角色动画通过定时切换 `image/grey-wolf-0.png` 至 `image/grey-wolf-9.png` 或 `image/little-grey-0.png` 至 `image/little-grey-9.png` 实现。
+3. 出狼循环会创建一个 `img` 元素，随机选择 9 个洞位之一，并随机决定生成灰狼或小灰灰。
+4. 角色使用 `image/actor-1.png`、`image/actor-2.png` 作为普通状态，点击后切换到 `image/actor-1-hit.png`、`image/actor-2-hit.png`，出现、被打和消失动画由 CSS 控制。
 5. 玩家点击角色后，同一只狼只允许计分一次。
 6. 点击灰太狼时分数加 10，点击小灰灰时分数减 10。
 7. 倒计时结束后停止出狼循环，记录本局编号、得分和时间。

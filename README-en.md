@@ -6,7 +6,7 @@
 
 This is a mobile-first H5 whack-a-mole style game. The player has 30 seconds to tap randomly appearing characters: hitting Grey Wolf increases the score, while hitting Little Grey decreases it. The project is built with static HTML, CSS, JavaScript, jQuery, and Bootstrap. No build tool is required.
 
-![Game interface screenshot](assets/screenshot.png)
+![Game interface screenshot](screenshot.png)
 
 ## Features
 
@@ -36,7 +36,7 @@ This is a mobile-first H5 whack-a-mole style game. The player has 30 seconds to 
 │   └── bootstrap.min.js    # Bootstrap script
 ├── image/                  # Images required at runtime
 ├── audio/                  # Background music and sound effects
-└── assets/                 # Documentation screenshots, unused images, and original sliced assets
+└── screenshot.png          # README interface screenshot
 ```
 
 ## How to Run
@@ -60,7 +60,7 @@ http://localhost:8000
 1. After the page loads, `js/main.js` adjusts the root font size according to the screen width for mobile responsiveness.
 2. When the player clicks “Start Game”, the start panel is hidden, background music starts, and both the countdown timer and spawn loop begin.
 3. The spawn loop creates an `img` element, picks one of 9 positions, and randomly chooses whether to show Grey Wolf or Little Grey.
-4. Character animation is implemented by switching image frames from `image/grey-wolf-0.png` to `image/grey-wolf-9.png` or from `image/little-grey-0.png` to `image/little-grey-9.png`.
+4. Characters use `image/actor-1.png` and `image/actor-2.png` for normal states, switch to `image/actor-1-hit.png` and `image/actor-2-hit.png` after being clicked, and rely on CSS for appear, hit, and hide animations.
 5. Each spawned character can only be scored once.
 6. Hitting Grey Wolf adds 10 points; hitting Little Grey subtracts 10 points.
 7. When the countdown reaches zero, the spawn loop stops and the round ID, score, and time are recorded.

@@ -7,13 +7,12 @@
 		<title>打灰狼</title>
 		<link rel="shortcut icon" href="image/favicon.png">
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
-		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<link rel="stylesheet" type="text/css" href="css/style.css?v=spawn-weight" />
 		<script src="js/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
 	</head>
 	<body>
 		<audio id="game-bg-audio" loop preload="auto">
-			<source src="audio/game-music.ogg" type="audio/ogg">
-			<source src="audio/game-music.mp3" type="audio/mpeg">
+			<source src="audio/background-music.ogg" type="audio/ogg">
 		</audio>
 		<div class="game-box-bg">
 			<div class="game-header">
@@ -48,14 +47,17 @@
 			</div>
 			<div class="start-box">
 				<h1 class="start-title">打灰狼</h1>
+				<div class="participants-box">参与人次 <strong><span id="participant-count">0</span></strong></div>
 				<ul class="start-rules">
 					<li>游戏时间：30 秒</li>
 					<li>打到大灰狼 +10 分</li>
 					<li>打到小灰灰 -10 分</li>
 					<li>分数不会低于 0</li>
 					<li class="top-ranking-panel">
-						<span class="top-ranking-title">前三名</span>
 						<ol id="top-ranking-list" class="top-ranking-list"></ol>
+					</li>
+					<li class="game-result-panel">
+						<div id="game-result-content" class="game-result-content"></div>
 					</li>
 				</ul>
 				<button class="start-button">开始游戏</button>
@@ -97,6 +99,6 @@
 		</div>
 
 		<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
-		<script src="js/main.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/main.js?v=spawn-weight" type="text/javascript" charset="utf-8"></script>
 	</body>
 </html>
