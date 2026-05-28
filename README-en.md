@@ -6,7 +6,7 @@
 
 This is a mobile-first H5 whack-a-mole style game. The player has 30 seconds to tap randomly appearing characters: hitting Grey Wolf increases the score, while hitting Little Grey decreases it. The project is built with static HTML, CSS, JavaScript, jQuery, and Bootstrap. No build tool is required.
 
-![Game screenshot](assets/screenshot.png)
+![Game interface screenshot](assets/screenshot.png)
 
 ## Features
 
@@ -17,14 +17,16 @@ This is a mobile-first H5 whack-a-mole style game. The player has 30 seconds to 
 - Hitting Grey Wolf adds 10 points; hitting Little Grey subtracts 10 points, with a minimum score of 0.
 - Background music toggle.
 - Hit and miss sound effects.
-- Game rules modal.
-- Reserved ranking modal structure.
+- Start screen with game rules and top-three ranking preview.
+- Header status for current rank, score, and countdown timer.
+- Local ranking records with player ID, score, and time, sorted by score in descending order.
+- Ranking data can be cleared from the ranking modal.
 
 ## Project Structure
 
 ```text
 .
-├── index.html              # Page structure and modal content
+├── index.html              # Page structure and ranking modal
 ├── css/
 │   ├── style.css           # Game page styles
 │   └── bootstrap.min.css   # Bootstrap styles
@@ -61,8 +63,9 @@ http://localhost:8000
 4. Character animation is implemented by switching image frames from `image/grey-wolf-0.png` to `image/grey-wolf-9.png` or from `image/little-grey-0.png` to `image/little-grey-9.png`.
 5. Each spawned character can only be scored once.
 6. Hitting Grey Wolf adds 10 points; hitting Little Grey subtracts 10 points.
-7. When the countdown reaches zero, the spawn loop stops and the final score panel is displayed.
-8. Clicking “Restart” resets the score, timer, and UI state, then starts a new round.
+7. When the countdown reaches zero, the spawn loop stops and the round ID, score, and time are recorded.
+8. The game returns directly to the start screen, keeps the latest score in the header, and refreshes the rank and top-three preview.
+9. Ranking data is stored in browser `localStorage`; clicking “Clear Data” removes local ranking records.
 
 ## Game Rules
 
