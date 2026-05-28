@@ -149,16 +149,6 @@ body,
 	background-size: 100% auto;
 	border: none;
 }
-.ranking-modal .modal-content .modal-header h5 {
-	margin-bottom: 0;
-	background: linear-gradient(-45deg, rgba(255, 162, 17, 1) 0%, rgba(255, 118, 66, 1) 100%);
-	background-clip: text;
-	-webkit-background-clip: text;
-	text-fill-color: transparent;
-	-webkit-text-fill-color: transparent;
-	font-weight: bold;
-}
-
 .ranking-modal .modal-body {
 	padding: 0.75rem;
 }
@@ -173,8 +163,32 @@ body,
 	text-align: center;
 }
 
+.ranking-table thead,
+.ranking-table tbody tr {
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+}
+
+.ranking-table tbody {
+	display: block;
+	height: 12.25rem;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.ranking-table tbody::-webkit-scrollbar {
+	width: 0.35rem;
+}
+
+.ranking-table tbody::-webkit-scrollbar-thumb {
+	border-radius: 0.35rem;
+	background: rgba(139, 45, 27, 0.32);
+}
+
 .ranking-table th,
 .ranking-table td {
+	height: 2.45rem;
 	padding: 0.5rem 0.25rem;
 	border-color: rgba(139, 45, 27, 0.14);
 	vertical-align: middle;
@@ -245,6 +259,7 @@ body,
 
 .ranking-modal .modal-footer {
 	justify-content: center;
+	gap: 0.625rem;
 	padding: 0.625rem 0.75rem 0.75rem;
 	border-top: 0;
 }
@@ -407,15 +422,25 @@ body,
     top: 35.75rem;
 }
 
-.clear-ranking-button {
+.clear-ranking-button,
+.close-ranking-button {
 	border: 0;
 	border-radius: 1.25rem;
-	background: linear-gradient(180deg, #ff6d4a 0%, #c8321e 100%);
-	box-shadow: 0 0.125rem 0 #7f1f12;
-	color: #fff;
 	font-size: 0.875rem;
 	font-weight: bold;
 	padding: 0.375rem 1rem;
+}
+
+.clear-ranking-button {
+	background: linear-gradient(180deg, #ff6d4a 0%, #c8321e 100%);
+	box-shadow: 0 0.125rem 0 #7f1f12;
+	color: #fff;
+}
+
+.close-ranking-button {
+	background: linear-gradient(180deg, #ffe7a6 0%, #f0b642 100%);
+	box-shadow: 0 0.125rem 0 #a46b12;
+	color: #7a2b12;
 }
 
 .target-hole {
@@ -444,19 +469,12 @@ body,
 	left: 50%;
 	bottom: 0;
 	display: block;
+	width: 5.6rem;
 	height: auto;
 	transform: translateX(-50%);
 	transform-origin: 50% 100%;
 	transition: filter 0.12s ease;
 	will-change: opacity, transform;
-}
-
-.target-grey-wolf {
-	width: 5.6rem;
-}
-
-.target-little-grey {
-	width: 5.15rem;
 }
 
 .target-image.is-appearing {

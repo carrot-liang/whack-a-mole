@@ -54,28 +54,37 @@ var targetPositions = [{
 	}
 ];
 
-var targetConfigs = {
-	greyWolf: {
-		normal: 'image/actor-1.png',
-		hit: 'image/actor-1-hit.png',
-		className: 'target-grey-wolf',
+var targetConfigs = [{
+		type: 'wolffy',
+		normal: 'image/wolffy.png',
+		hit: 'image/wolffy-hit.png',
 		offsetLeft: -0.45,
-		offsetTop: -1.8,
+		offsetTop: -1.2,
 		spawnWeight: 7,
 		scoreDelta: 10,
 		hitAudio: 'hit-right'
 	},
-	littleGrey: {
-		normal: 'image/actor-2.png',
-		hit: 'image/actor-2-hit.png',
-		className: 'target-little-grey',
+	{
+		type: 'howie',
+		normal: 'image/howie.png',
+		hit: 'image/howie-hit.png',
 		offsetLeft: -0.45,
-		offsetTop: -1.8,
+		offsetTop: -1.2,
 		spawnWeight: 3,
 		scoreDelta: -10,
 		hitAudio: 'hit-wrong'
+	},
+	{
+		type: 'mole',
+		normal: 'image/mole.png',
+		hit: 'image/mole-hit.png',
+		offsetLeft: -0.45,
+		offsetTop: -1.2,
+		spawnWeight: 5,
+		scoreDelta: 10,
+		hitAudio: 'hit-right'
 	}
-};
+];
 
 function getRandomInteger(min, max) {
 	return Math.round(Math.random() * (max - min) + min);
@@ -85,20 +94,21 @@ function getOffsetPosition(positionValue, offsetRem) {
 	return 'calc(' + positionValue + ' + ' + offsetRem + 'rem)';
 }
 
-function getRandomTargetType() {
-	var targetTypes = Object.keys(targetConfigs);
-	var totalWeight = targetTypes.reduce(function(total, targetType) {
-		return total + targetConfigs[targetType].spawnWeight;
+function getRandomTargetConfig() {
+	var totalWeight = targetConfigs.reduce(function(total, targetConfig) {
+		return total + targetConfig.spawnWeight;
 	}, 0);
 	var randomWeight = Math.random() * totalWeight;
 
-	for (var index = 0; index < targetTypes.length; index++) {
-		randomWeight -= targetConfigs[targetTypes[index]].spawnWeight;
+	for (var index = 0; index < targetConfigs.length; index++) {
+		randomWeight -= targetConfigs[index].spawnWeight;
 
 		if (randomWeight <= 0) {
-			return targetTypes[index];
+			return targetConfigs[index];
 		}
 	}
+
+	return targetConfigs[targetConfigs.length - 1];
 }
 
 function setScore(nextScore) {
@@ -137,6 +147,10 @@ function saveRankingRecords(records) {
 }
 
 function clearRankingRecords() {
+	if (!window.confirm('确定要清除全部榜单数据吗？')) {
+		return;
+	}
+
 	localStorage.removeItem(rankingStorageKey);
 	renderRankingTable();
 	renderGameResult(null);
@@ -281,6 +295,11 @@ function finishGame() {
 }
 
 function playEffectAudio(audioName) {
+	if (!isMusicEnabled()) {
+		stopEffectAudio();
+		return;
+	}
+
 	effectAudioIndex++;
 
 	var audioHtml = '<audio class="effect-audio" id="effect-audio-' + effectAudioIndex +
@@ -293,6 +312,13 @@ function playEffectAudio(audioName) {
 		if (this.paused) {
 			this.remove();
 		}
+	});
+}
+
+function stopEffectAudio() {
+	$(".effect-audio").each(function() {
+		this.pause();
+		this.remove();
 	});
 }
 
@@ -315,13 +341,18 @@ function startCountdown(secondsRemaining) {
 	}, 1000);
 }
 
+function isMusicEnabled() {
+	return $("#music-button").hasClass("is-music-on");
+}
+
 function toggleBackgroundMusic() {
 	var $musicButton = $("#music-button");
 	var backgroundAudio = $("#game-bg-audio")[0];
 
-	if ($musicButton.hasClass("is-music-on")) {
+	if (isMusicEnabled()) {
 		$musicButton.removeClass("is-music-on");
 		backgroundAudio.pause();
+		stopEffectAudio();
 	} else {
 		$musicButton.addClass("is-music-on");
 		backgroundAudio.play();
@@ -329,8 +360,10 @@ function toggleBackgroundMusic() {
 }
 
 function startGame() {
-	$("#game-bg-audio")[0].play();
-	$("#music-button").addClass("is-music-on");
+	if (isMusicEnabled()) {
+		$("#game-bg-audio")[0].play();
+	}
+
 	playEffectAudio('game-start');
 	$(".game-header").show();
 	$(".start-box").hide();
@@ -362,14 +395,13 @@ function spawnTarget() {
 	var targetHole = document.createElement('div');
 	var targetImage = document.createElement('img');
 	var positionIndex = getRandomInteger(0, targetPositions.length - 1);
-	var targetType = getRandomTargetType();
-	var targetConfig = targetConfigs[targetType];
+	var targetConfig = getRandomTargetConfig();
 	var clickCount = 0;
 
 	targetHole.className = 'target-hole';
-	targetImage.className = 'target-image ' + targetConfig.className + ' is-appearing';
+	targetImage.className = 'target-image is-appearing';
 	targetImage.src = targetConfig.normal;
-	targetImage.alt = targetType;
+	targetImage.alt = targetConfig.type;
 	targetHole.appendChild(targetImage);
 	$(".game-box-bg").append(targetHole);
 

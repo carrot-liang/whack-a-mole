@@ -4,7 +4,7 @@
 
 ## Overview
 
-This is a mobile-first H5 whack-a-mole style game. The player has 30 seconds to tap randomly appearing characters: hitting Grey Wolf increases the score, while hitting Little Grey decreases it. The project is built with static HTML, CSS, JavaScript, jQuery, and Bootstrap. No build tool is required.
+This is a mobile-first H5 whack-a-mole style game. The player has 30 seconds to tap randomly appearing characters: hitting Wolffy and Mole increases the score, while hitting Howie decreases it. The project is built with static HTML, CSS, JavaScript, jQuery, and Bootstrap. No build tool is required.
 
 ![Game interface screenshot](screenshot.png)
 
@@ -13,8 +13,8 @@ This is a mobile-first H5 whack-a-mole style game. The player has 30 seconds to 
 - Mobile responsive layout based on rem units.
 - 30-second game timer.
 - Random spawning across 9 fixed positions.
-- Two random target types: Grey Wolf and Little Grey.
-- Hitting Grey Wolf adds 10 points; hitting Little Grey subtracts 10 points, with a minimum score of 0.
+- Three random target types: Wolffy, Howie, and Mole.
+- Hitting Wolffy and Mole adds 10 points; hitting Howie subtracts 10 points, with a minimum score of 0.
 - Background music toggle.
 - Hit and miss sound effects.
 - Start screen with game rules and top-three ranking preview.
@@ -59,10 +59,10 @@ http://localhost:8000
 
 1. After the page loads, `js/main.js` adjusts the root font size according to the screen width for mobile responsiveness.
 2. When the player clicks “Start Game”, the start panel is hidden, background music starts, and both the countdown timer and spawn loop begin.
-3. The spawn loop creates an `img` element, picks one of 9 positions, and randomly chooses whether to show Grey Wolf or Little Grey.
-4. Characters use `image/actor-1.png` and `image/actor-2.png` for normal states, switch to `image/actor-1-hit.png` and `image/actor-2-hit.png` after being clicked, and rely on CSS for appear, hit, and hide animations.
+3. The spawn loop creates an `img` element, picks one of 9 positions, and randomly chooses whether to show Wolffy, Howie, or Mole.
+4. Characters use `image/wolffy.png`, `image/howie.png`, and `image/mole.png` for normal states, switch to `image/wolffy-hit.png`, `image/howie-hit.png`, and `image/mole-hit.png` after being clicked, and rely on CSS for appear, hit, and hide animations.
 5. Each spawned character can only be scored once.
-6. Hitting Grey Wolf adds 10 points; hitting Little Grey subtracts 10 points.
+6. Hitting Wolffy and Mole adds 10 points; hitting Howie subtracts 10 points.
 7. When the countdown reaches zero, the spawn loop stops and the round ID, score, and time are recorded.
 8. The game returns directly to the start screen, keeps the latest score in the header, and refreshes the rank and top-three preview.
 9. Ranking data is stored in browser `localStorage`; clicking “Clear Data” removes local ranking records.
@@ -70,6 +70,7 @@ http://localhost:8000
 ## Game Rules
 
 - Each round lasts 30 seconds.
-- Hit Grey Wolf: `+10` points.
-- Hit Little Grey: `-10` points.
+- Hit Wolffy: `+10` points.
+- Hit Howie: `-10` points.
+- Hit Mole: `+10` points.
 - The score never goes below 0.
